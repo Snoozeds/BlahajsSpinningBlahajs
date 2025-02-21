@@ -106,56 +106,38 @@ class AudioCache {
 // Audio setup
 const audioCache = new AudioCache();
 const listener = new THREE.AudioListener();
-camera.add(listener);
-
 const sound = new THREE.Audio(listener);
-const audioLoader = new THREE.AudioLoader();
-const audioFilename = 'Monkeys_Spinning_Monkeys_by_Kevin_MacLeod.mp3';
-
-// Play/stop button
 let isPlaying = false;
+const audioFilename = 'Monkeys_Spinning_Monkeys_by_Kevin_MacLeod.mp3';
 
 async function loadAudio() {
     try {
-        const audioCache = new AudioCache();
-        const listener = new THREE.AudioListener();
         camera.add(listener);
-        const sound = new THREE.Audio(listener);
         
-        // Try to load from cache first
         const cachedAudioData = await audioCache.getAudio(audioFilename);
         
         if (cachedAudioData) {
             console.log('Audio loaded from cache');
-            // Create AudioContext
             const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            // Decode the cached ArrayBuffer
             const audioBuffer = await audioContext.decodeAudioData(cachedAudioData);
             sound.setBuffer(audioBuffer);
             sound.setLoop(true);
             sound.setVolume(0.5);
-            sound.play();
         } else {
-            // Load from URL if not in cache
             const response = await fetch('https://assets.snoozeds.com/Monkeys_Spinning_Monkeys_by_Kevin_MacLeod.mp3');
             const arrayBuffer = await response.arrayBuffer();
-            
-            // Save the raw ArrayBuffer to cache
             await audioCache.saveAudio(audioFilename, arrayBuffer);
-            
-            // Create AudioBuffer and play
             const audioContext = new (window.AudioContext || window.webkitAudioContext)();
             const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
             sound.setBuffer(audioBuffer);
             sound.setLoop(true);
             sound.setVolume(0.5);
-            sound.play();
-            isPlaying = true;
         }
     } catch (error) {
         console.error('Error in loadAudio:', error);
     }
 }
+
 
 document.getElementById("playAudio").addEventListener("click", async () => {
     try {
@@ -166,28 +148,16 @@ document.getElementById("playAudio").addEventListener("click", async () => {
             return;
         }
 
-        const cachedAudioData = await audioCache.getAudio(audioFilename);
-        
-        if (cachedAudioData) {
-            console.log('Audio loaded from cache');
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const audioBuffer = await audioContext.decodeAudioData(cachedAudioData);
-            sound.setBuffer(audioBuffer);
+        if (sound.buffer) {
+            sound.play();
+            document.getElementById("playAudio").textContent = "Stop Audio";
+            isPlaying = true;
         } else {
-            const response = await fetch('https://assets.snoozeds.com/Monkeys_Spinning_Monkeys_by_Kevin_MacLeod.mp3');
-            const arrayBuffer = await response.arrayBuffer();
-            await audioCache.saveAudio(audioFilename, arrayBuffer);
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-            sound.setBuffer(audioBuffer);
+            await loadAudio();
+            sound.play();
+            document.getElementById("playAudio").textContent = "Stop Audio";
+            isPlaying = true;
         }
-
-        sound.setLoop(true);
-        sound.setVolume(0.5);
-        sound.play();
-        
-        document.getElementById("playAudio").textContent = "Stop Audio";
-        isPlaying = true;
     } catch (error) {
         console.error('Error playing audio:', error);
     }
