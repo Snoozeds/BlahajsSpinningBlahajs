@@ -112,6 +112,9 @@ const sound = new THREE.Audio(listener);
 const audioLoader = new THREE.AudioLoader();
 const audioFilename = 'Monkeys_Spinning_Monkeys_by_Kevin_MacLeod.mp3';
 
+// Play/stop button
+let isPlaying = false;
+
 async function loadAudio() {
     try {
         const audioCache = new AudioCache();
@@ -147,19 +150,17 @@ async function loadAudio() {
             sound.setLoop(true);
             sound.setVolume(0.5);
             sound.play();
+            isPlaying = true;
         }
     } catch (error) {
         console.error('Error in loadAudio:', error);
     }
 }
 
-// Play/pause button
-let isPlaying = false;
-
 document.getElementById("playAudio").addEventListener("click", async () => {
     try {
         if (isPlaying) {
-            sound.pause(); // Pause if it's already playing
+            sound.stop();
             document.getElementById("playAudio").textContent = "Play Audio";
             isPlaying = false;
             return;
@@ -185,7 +186,7 @@ document.getElementById("playAudio").addEventListener("click", async () => {
         sound.setVolume(0.5);
         sound.play();
         
-        document.getElementById("playAudio").textContent = "Pause Audio";
+        document.getElementById("playAudio").textContent = "Stop Audio";
         isPlaying = true;
     } catch (error) {
         console.error('Error playing audio:', error);
