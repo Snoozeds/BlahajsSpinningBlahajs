@@ -153,6 +153,45 @@ async function loadAudio() {
     }
 }
 
+// Play/pause button
+let isPlaying = false;
+
+document.getElementById("playAudio").addEventListener("click", async () => {
+    try {
+        if (isPlaying) {
+            sound.pause(); // Pause if it's already playing
+            document.getElementById("playAudio").textContent = "Play Audio";
+            isPlaying = false;
+            return;
+        }
+
+        const cachedAudioData = await audioCache.getAudio(audioFilename);
+        
+        if (cachedAudioData) {
+            console.log('Audio loaded from cache');
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const audioBuffer = await audioContext.decodeAudioData(cachedAudioData);
+            sound.setBuffer(audioBuffer);
+        } else {
+            const response = await fetch('https://assets.snoozeds.com/Monkeys_Spinning_Monkeys_by_Kevin_MacLeod.mp3');
+            const arrayBuffer = await response.arrayBuffer();
+            await audioCache.saveAudio(audioFilename, arrayBuffer);
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+            sound.setBuffer(audioBuffer);
+        }
+
+        sound.setLoop(true);
+        sound.setVolume(0.5);
+        sound.play();
+        
+        document.getElementById("playAudio").textContent = "Pause Audio";
+        isPlaying = true;
+    } catch (error) {
+        console.error('Error playing audio:', error);
+    }
+});
+
 loadAudio();
 
 // Handle window resize
