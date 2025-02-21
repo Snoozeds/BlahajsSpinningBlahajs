@@ -1,0 +1,14 @@
+{
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "prev": "vite preview"
+  },
+  "dependencies": {
+    "three": "^0.173.0",
+    "vite-plugin-pwa": "^0.21.1"
+  },
+  "devDependencies": {
+    "vite": "^6.1.1"
+  }
+}
